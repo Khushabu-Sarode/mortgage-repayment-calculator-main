@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mortgage Calculator</title>
+  <style>
+    /* ==========================
+       PAGE & CONTAINER STYLES
+    =========================== */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #EAF6FA;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .main-id {
+      display: flex;
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-section {
+      flex: 1;
+      padding: 2rem;
+    }
+
+    .results-section {
+      flex: 1;
+      background-color: #0C2D3E;
+      border-radius: 0px 0px 0px 100px;
+      color: white;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* ==========================
+       HEADER & CLEAR BUTTON
+    =========================== */
+    h1 {
+      font-size: 1.5rem;
+      color: #2C3E50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #2C3E50;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* ==========================
+       MORTGAGE AMOUNT
+    =========================== */
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-label {
+      font-weight: bold;
+      color: #2C3E50;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    .amount-input {
+      display: flex;
+      align-items: center;
+      border: 2px solid #F6F7F8;
+      border-radius: 6px;
+      padding: 0.75rem;
+      background-color: #F9FAFB;
+    }
+
+    .amount-input input {
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      width: 100%;
+      font-weight: bold;
+      outline: none;
+    }
+
+    .amount-input span {
+      color: #B0BEC5;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    /* ==========================
+       TERM & INTEREST RATE
+    =========================== */
+    .term-rate {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .term-rate .input-group {
+      flex: 1;
+    }
+
+    .term-wrapper,
+    .rate-wrapper {
+      display: flex;
+      align-items: center;
+      border: 2px solid #F6F7F8;
+      border-radius: 6px;
+      padding: 0.75rem;
+      background-color: #F9FAFB;
+    }
+
+    .term-wrapper input,
+    .rate-wrapper input {
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+    }
+
+    .unit {
+      color: #B0BEC5;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    /* ==========================
+       MORTGAGE TYPE
+    =========================== */
+    .mortgage-type {
+      margin-bottom: 1.5rem;
+    }
+
+    .type-option {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 2px solid #DEE4E7;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .type-option input {
+      margin-right: 10px;
+    }
+
+    /* ==========================
+       CALCULATE BUTTON
+    =========================== */
+    .calculate-btn {
+      background-color: #D8E600;
+      color: #000;
+      border: none;
+      padding: 1rem;
+      border-radius: 50px;
+      width: 100%;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Hover effect in ORANGE */
+    .calculate-btn:hover {
+      background-color: #f39c12; /* bright orange */
+    }
+
+    /* ==========================
+       RESULTS SECTION
+    =========================== */
+    .results-section h2 {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+
+    .results-section p {
+      font-size: 0.9rem;
+      color: #BFDDE7;
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    .results.hidden {
+      display: none;
+    }
+
+    .calculated-results {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .calculated-results.visible {
+      display: block;
+    }
+
+    .result-item {
+      margin-bottom: 20px;
+    }
+
+    .result-label {
+      font-size: 14px;
+      color: #BFDDE7;
+      margin-bottom: 5px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #284B5E;
+      margin: 20px 0;
+    }
+
+    /* ==========================
+       OPTIONAL: IMAGE ABOVE RESULTS
+    =========================== */
+    .results-section img {
+      max-width: 150px;
+      height: auto;
+      margin-bottom: 1rem;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="main-id">
+    <!-- LEFT PANEL: Input Section -->
+    <div class="input-section">
+      <h1>
+        Mortgage Calculator
+        <button class="clear-btn">Clear All</button>
+      </h1>
+
+      <!-- Mortgage Amount -->
+      <div class="input-group">
+        <label class="input-label" for="amount">Mortgage Amount</label>
+        <div class="amount-input">
+          <span>£</span>
+          <input type="number" id="amount" value="300000" min="1000" step="1000">
+          <span>|</span>
+          <span id="amount-label">300k</span>
+        </div>
+      </div>
+
+      <!-- Term & Rate -->
+      <div class="term-rate">
+        <div class="input-group">
+          <label class="input-label" for="term">Mortgage Term</label>
+          <div class="term-wrapper">
+            <input type="number" id="term" value="25" min="1" max="40">
+            <span class="unit">yrs</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="rate">Interest Rate</label>
+          <div class="rate-wrapper">
+            <input type="number" id="rate" value="5.25" min="0.1" max="20" step="0.01">
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mortgage Type -->
+      <div class="mortgage-type">
+        <label class="input-label">Mortgage Type</label>
+        <div class="type-option">
+          <input type="radio" id="repayment" name="type" value="repayment" checked>
+          <label for="repayment">Repayment</label>
+        </div>
+        <div class="type-option">
+          <input type="radio" id="interest-only" name="type" value="interest-only">
+          <label for="interest-only">Interest Only</label>
+        </div>
+      </div>
+
+      <!-- Calculate Button -->
+      <button class="calculate-btn">
+        
+        Calculate Repayments
+      </button>
+    </div>
+
+    <!-- RIGHT PANEL: Results Section -->
+    <div class="results-section">
+      <!-- If you want an image above "Results shown here," place it here -->
+      <!-- <img src="image.png" alt="Finance Illustration" /> -->
+
+      <div class="results" id="empty-results">
+        <img src="assets/images/illustration-empty.svg" alt="Finance Illustration" class="result-img" />
+
+        <h2>Results shown here</h2>
+        <p>
+          Complete the form and click "Calculate Repayments" to see your results.
+        </p>
+      </div>
+
+      <div class="calculated-results" id="calculated-results">
+        <h2>Your results</h2>
+        <p>Based on the information provided.</p>
+        <hr>
+        <div class="result-item">
+          <div class="result-label">Your monthly repayments</div>
+          <div class="result-value" id="monthly-payment">£1,789.12</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Total you'll repay over the term</div>
+          <div class="result-value" id="total-repayment">£536,736.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS for calculations & clearing -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const amountInput = document.getElementById('amount');
+      const termInput = document.getElementById('term');
+      const rateInput = document.getElementById('rate');
+      const calculateBtn = document.querySelector('.calculate-btn');
+      const clearBtn = document.querySelector('.clear-btn');
+      const emptyResults = document.getElementById('empty-results');
+      const calculatedResults = document.getElementById('calculated-results');
+      const monthlyPaymentEl = document.getElementById('monthly-payment');
+      const totalRepaymentEl = document.getElementById('total-repayment');
+      const amountLabel = document.getElementById('amount-label');
+
+      function formatCurrency(amount) {
+        return '£' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+      }
+
+      function calculateMortgage() {
+        const amount = parseFloat(amountInput.value);
+        let term = parseFloat(termInput.value);
+        const rate = parseFloat(rateInput.value) / 100;
+        const isRepayment = document.getElementById('repayment').checked;
+
+        // Convert years to months
+        term = term * 12;
+
+        if (isRepayment) {
+          const monthlyRate = rate / 12;
+          const monthlyPayment =
+            (amount * monthlyRate * Math.pow(1 + monthlyRate, term)) /
+            (Math.pow(1 + monthlyRate, term) - 1);
+          const totalRepayment = monthlyPayment * term;
+
+          monthlyPaymentEl.textContent = formatCurrency(monthlyPayment);
+          totalRepaymentEl.textContent = formatCurrency(totalRepayment);
+        } else {
+          const monthlyPayment = (amount * rate) / 12;
+          // total includes paying back principal at end
+          const totalRepayment = monthlyPayment * term + amount;
+
+          monthlyPaymentEl.textContent = formatCurrency(monthlyPayment);
+          totalRepaymentEl.textContent = formatCurrency(totalRepayment);
+        }
+
+        emptyResults.classList.add('hidden');
+        calculatedResults.classList.add('visible');
+      }
+
+      function clearAll() {
+        amountInput.value = '300000';
+        termInput.value = '25';
+        rateInput.value = '5.25';
+        document.getElementById('repayment').checked = true;
+
+        emptyResults.classList.remove('hidden');
+        calculatedResults.classList.remove('visible');
+        amountLabel.textContent = '300k';
+      }
+
+      calculateBtn.addEventListener('click', calculateMortgage);
+      clearBtn.addEventListener('click', clearAll);
+
+      // Show "k" or "m" next to the typed amount
+      amountInput.addEventListener('input', function () {
+        const amount = parseFloat(this.value) || 0;
+        if (amount >= 1000000) {
+          amountLabel.textContent = (amount / 1000000).toFixed(1) + 'm';
+        } else if (amount >= 1000) {
+          amountLabel.textContent = (amount / 1000) + 'k';
+        } else {
+          amountLabel.textContent = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
